@@ -1,6 +1,7 @@
 package main
 
-import (
+import 
+(
 	"fmt"
 	. "gohipernetFake"
 	"strconv"
@@ -8,18 +9,21 @@ import (
 )
 
 
-type EchoServer struct {
+type EchoServer struct 
+{
 	ServerIndex int
 	IP          string
 	Port        int
 }
 
-func createServer(netConfig NetworkConfig) {
+func createServer(netConfig NetworkConfig) 
+{
 	OutPutLog(LOG_LEVEL_INFO,"", 0,"CreateServer !!!")
 
 	var server EchoServer
 
-	if server.setIPAddress(netConfig.BindAddress) == false {
+	if server.setIPAddress(netConfig.BindAddress) == false 
+	{
 		OutPutLog(LOG_LEVEL_ERROR,"", 0,"fail. server address")
 		return
 	}
@@ -37,9 +41,11 @@ func createServer(netConfig NetworkConfig) {
 	NetLibStartNetwork(&netConfig, networkFunctor)
 }
 
-func (server *EchoServer) setIPAddress(ipAddress string) bool {
+func (server *EchoServer) setIPAddress(ipAddress string) bool 
+{
 	results := strings.Split(ipAddress, ":")
-	if len(results) != 2 {
+	if len(results) != 2 
+	{
 		return false
 	}
 
@@ -49,16 +55,19 @@ func (server *EchoServer) setIPAddress(ipAddress string) bool {
 	return true
 }
 
-func (server *EchoServer) OnConnect(sessionIndex int32, sessionUniqueID uint64) {
+func (server *EchoServer) OnConnect(sessionIndex int32, sessionUniqueID uint64) 
+{
 	OutPutLog(LOG_LEVEL_INFO,"", 0,fmt.Sprintf("[OnConnect] sessionIndex: %d", sessionIndex))
 }
 
-func (server *EchoServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, data []byte) bool {
+func (server *EchoServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, data []byte) bool 
+{
 	NetLibISendToClient(sessionIndex, sessionUniqueID, data)
 	return true
 }
 
-func (server *EchoServer) OnClose(sessionIndex int32, sessionUniqueID uint64) {
+func (server *EchoServer) OnClose(sessionIndex int32, sessionUniqueID uint64) 
+{
 	OutPutLog(LOG_LEVEL_INFO,"", 0,fmt.Sprintf("[OnClose] sessionIndex: %d", sessionIndex))
 }
 
