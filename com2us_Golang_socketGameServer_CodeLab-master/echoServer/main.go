@@ -1,12 +1,14 @@
 package main
 
-import (
+import 
+(
 	"flag"
 	. "gohipernetFake"
 )
 
 
-func main() {
+func main() 
+{
 	NetLibInitLog(LOG_LEVEL_DEBUG, nil)
 
 	netConfigClient := parseAppConfig()
@@ -16,7 +18,8 @@ func main() {
 	createServer(netConfigClient)
 }
 
-func parseAppConfig() NetworkConfig {
+func parseAppConfig() NetworkConfig 
+{
 	client := NetworkConfig{}
 
 	flag.BoolVar(&client.IsTcp4Addr,"c_IsTcp4Addr", true, "bool flag")
