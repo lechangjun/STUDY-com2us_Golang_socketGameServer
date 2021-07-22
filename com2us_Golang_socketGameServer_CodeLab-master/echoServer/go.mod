@@ -2,7 +2,8 @@ module main
 
 go 1.13
 
-require (
+require 
+(
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
