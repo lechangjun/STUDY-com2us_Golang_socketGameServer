@@ -90,27 +90,33 @@ func (session *session) IsAuth() bool {
 	return false
 }
 
-func (session *session) setRoomEntering(roomNum int32) bool {
-	if atomic.CompareAndSwapInt32(&session._RoomNumOfEntering, -1, roomNum) == false {
+func (session *session) setRoomEntering(roomNum int32) bool
+{
+	if atomic.CompareAndSwapInt32(&session._RoomNumOfEntering, -1, roomNum) == false
+	{
 		return false
 	}
 
 	return true
 }
 
-func (session *session) setRoomNumber(sessionUniqueId uint64, roomNum int32, curTimeSec int64) bool {
+func (session *session) setRoomNumber(sessionUniqueId uint64, roomNum int32, curTimeSec int64) bool
+{
 	if roomNum == -1 {
 		atomic.StoreInt32(&session._RoomNum, roomNum)
 		atomic.StoreInt32(&session._RoomNumOfEntering, roomNum)
 		return true
 	}
 
-	if sessionUniqueId != 0 && session.validNetworkUniqueID(sessionUniqueId) == false {
+	if sessionUniqueId != 0 && session.validNetworkUniqueID(sessionUniqueId) == false
+	{
 		return false
 
 	}
 	// 입력이 -1이 아닌경우 -1이 아닐 때만 compareswap으로 변경한다. 실패하면 채널 입장도 실패이다.
-	if atomic.CompareAndSwapInt32(&session._RoomNum, -1, roomNum) == false {
+	
+	if atomic.CompareAndSwapInt32(&session._RoomNum, -1, roomNum) == false
+	{
 		return false
 	}
 
@@ -118,7 +124,8 @@ func (session *session) setRoomNumber(sessionUniqueId uint64, roomNum int32, cur
 	return true
 }
 
-func (session *session) getRoomNumber() (int32, int32) {
+func (session *session) getRoomNumber() (int32, int32)
+{
 	roomNum := atomic.LoadInt32(&session._RoomNum)
 	roomNumOfEntering := atomic.LoadInt32(&session._RoomNum)
 	return roomNum, roomNumOfEntering
