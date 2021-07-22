@@ -1,6 +1,7 @@
 package main
 
-import (
+import 
+(
 	"bytes"
 	"time"
 
@@ -15,7 +16,8 @@ import (
 func (server *ChatServer) DistributePacket(sessionIndex int32,
 	sessionUniqueId uint64,
 	packetData []byte,
-	) {
+	) 
+{
 	packetID := protocol.PeekPacketID(packetData)
 	bodySize, bodyData := protocol.PeekPacketBody(packetData)
 
@@ -42,7 +44,8 @@ func (server *ChatServer) PacketProcess_goroutine() {
 	OutPutLog(LOG_LEVEL_INFO,"", 0,"Stop rooms PacketProcess goroutine")
 }
 
-func (server *ChatServer) PacketProcess_goroutine_Impl() bool {
+func (server *ChatServer) PacketProcess_goroutine_Impl() bool 
+{
 	IsWantedTermination := false // 이 서버에서는 별 의미가 없음
 	defer PrintPanicStack()
 
@@ -50,8 +53,10 @@ func (server *ChatServer) PacketProcess_goroutine_Impl() bool {
 	defer secondTimeticker.Stop()
 
 
-	for {
-		select {
+	for 
+	{
+		select 
+		{
 		case packet := <-server.PacketChan:
 			{
 				sessionIndex := packet.UserSessionIndex
@@ -59,11 +64,16 @@ func (server *ChatServer) PacketProcess_goroutine_Impl() bool {
 				bodySize := packet.DataSize
 				bodyData := packet.Data
 
-				if packet.Id == protocol.PACKET_ID_LOGIN_REQ {
+				if packet.Id == protocol.PACKET_ID_LOGIN_REQ 
+				{
 					ProcessPacketLogin(sessionIndex, sessionUniqueId, bodySize, bodyData)
-				} else if packet.Id == protocol.PACKET_ID_SESSION_CLOSE_SYS {
+				} 
+				else if packet.Id == protocol.PACKET_ID_SESSION_CLOSE_SYS 
+				{
 					ProcessPacketSessionClosed(server,  sessionIndex, sessionUniqueId)
-				} else {
+				} 
+				else 
+				{
 					roomNumber, _ := connectedSessions.GetRoomNumber(sessionIndex)
 					server.RoomMgr.PacketProcess(roomNumber, packet)
 				}
@@ -81,24 +91,29 @@ func (server *ChatServer) PacketProcess_goroutine_Impl() bool {
 func ProcessPacketLogin(sessionIndex int32,
 	sessionUniqueId uint64,
 	bodySize int16,
-	bodyData []byte )  {
+	bodyData []byte )  
+{
+	
 	//DB와 연동하지 않으므로 중복 로그인만 아니면 다 성공으로 한다
 	var request protocol.LoginReqPacket
-	if (&request).Decoding(bodyData) == false {
+	if (&request).Decoding(bodyData) == false 
+	{
 		_sendLoginResult(sessionIndex, sessionUniqueId, protocol.ERROR_CODE_PACKET_DECODING_FAIL)
 		return
 	}
 
 	userID := bytes.Trim(request.UserID[:], "\x00");
 
-	if len(userID) <= 0 {
+	if len(userID) <= 0 
+	{
 		_sendLoginResult(sessionIndex, sessionUniqueId, protocol.ERROR_CODE_LOGIN_USER_INVALID_ID)
 		return
 	}
 
 	curTime := time.Now().Unix()
 
-	if connectedSessions.SetLogin(sessionIndex, sessionUniqueId, userID, curTime) == false {
+	if connectedSessions.SetLogin(sessionIndex, sessionUniqueId, userID, curTime) == false 
+	{
 		_sendLoginResult(sessionIndex, sessionUniqueId, protocol.ERROR_CODE_LOGIN_USER_DUPLICATION)
 		return
 	}
@@ -106,7 +121,8 @@ func ProcessPacketLogin(sessionIndex int32,
 	_sendLoginResult(sessionIndex, sessionUniqueId, protocol.ERROR_CODE_NONE)
 }
 
-func _sendLoginResult(sessionIndex int32, sessionUniqueId uint64, result int16) {
+func _sendLoginResult(sessionIndex int32, sessionUniqueId uint64, result int16) 
+{
 	var response protocol.LoginResPacket
 	response.Result = result
 	sendPacket, _ := response.EncodingPacket()
@@ -115,11 +131,14 @@ func _sendLoginResult(sessionIndex int32, sessionUniqueId uint64, result int16) 
 }
 
 
-func ProcessPacketSessionClosed(server *ChatServer, sessionIndex int32, sessionUniqueId uint64) {
+func ProcessPacketSessionClosed(server *ChatServer, sessionIndex int32, sessionUniqueId uint64) 
+{
 	roomNumber, _ := connectedSessions.GetRoomNumber(sessionIndex)
 
-	if roomNumber > -1 {
-		packet := protocol.Packet{
+	if roomNumber > -1 
+	{
+		packet := protocol.Packet
+		{
 			sessionIndex,
 			sessionUniqueId,
 			protocol.PACKET_ID_ROOM_LEAVE_REQ,
