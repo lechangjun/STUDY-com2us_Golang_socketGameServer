@@ -124,3 +124,5 @@ func (session *session) getRoomNumber() (int32, int32) {
 	return roomNum, roomNumOfEntering
 }
 
+
+
