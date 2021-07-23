@@ -1,31 +1,36 @@
 package protocol
 
-import (
+import 
+(
 	"encoding/binary"
 	"reflect"
 
 	. "gohipernetFake"
 )
 
-const (
+const 
+(
 	PACKET_TYPE_NORMAL   = 0
 	PACKET_TYPE_COMPRESS = 1
 	PACKET_TYPE_SECURE   = 2
 )
 
-const (
+const 
+(
 	MAX_USER_ID_BYTE_LENGTH      = 16
 	MAX_USER_PW_BYTE_LENGTH      = 16
 	MAX_CHAT_MESSAGE_BYTE_LENGTH = 126
 )
 
-type Header struct {
+type Header struct 
+{
 	TotalSize  int16
 	ID         int16
 	PacketType int8 // 비트 필드로 데이터 설정. 0 이면 Normal, 1번 비트 On(압축), 2번 비트 On(암호화)
 }
 
-type Packet struct {
+type Packet struct 
+{
 	UserSessionIndex    int32
 	UserSessionUniqueId uint64
 	Id                  int16
@@ -33,58 +38,68 @@ type Packet struct {
 	Data                []byte
 }
 
-func (packet Packet) GetSessionInfo() (int32, uint64) {
+func (packet Packet) GetSessionInfo() (int32, uint64) 
+{
 	return packet.UserSessionIndex, packet.UserSessionUniqueId
 }
 
 var _clientSessionHeaderSize int16
 var _ServerSessionHeaderSize int16
 
-func Init_packet() {
+func Init_packet() 
+{
 	_clientSessionHeaderSize = protocolInitHeaderSize()
 	_ServerSessionHeaderSize = protocolInitHeaderSize()
 }
 
-func ClientHeaderSize() int16 {
+func ClientHeaderSize() int16 
+{
 	return _clientSessionHeaderSize
 }
-func ServerHeaderSize() int16 {
+func ServerHeaderSize() int16 
+{
 	return _ServerSessionHeaderSize
 }
 
-func protocolInitHeaderSize() int16 {
+func protocolInitHeaderSize() int16 
+{
 	var packetHeader Header
 	headerSize := Sizeof(reflect.TypeOf(packetHeader))
 	return (int16)(headerSize)
 }
 
 // Header의 PacketID만 읽는다
-func PeekPacketID(rawData []byte) int16 {
+func PeekPacketID(rawData []byte) int16 
+{
 	packetID := binary.LittleEndian.Uint16(rawData[2:])
 	return int16(packetID)
 }
 
 // 보디데이터의 참조만 가져간다
-func PeekPacketBody(rawData []byte) (bodySize int16, refBody []byte) {
+func PeekPacketBody(rawData []byte) (bodySize int16, refBody []byte) 
+{
 	headerSize := ClientHeaderSize()
 	totalSize := int16(binary.LittleEndian.Uint16(rawData))
 	bodySize = totalSize - headerSize
 
-	if bodySize > 0 {
+	if bodySize > 0 
+	{
 		refBody = rawData[headerSize:]
 	}
 
 	return bodySize, refBody
 }
 
-func DecodingPacketHeader(header *Header, data []byte) {
+func DecodingPacketHeader(header *Header, data []byte) 
+{
 	reader := MakeReader(data, true)
 	header.TotalSize, _ = reader.ReadS16()
 	header.ID, _ = reader.ReadS16()
 	header.PacketType, _ = reader.ReadS8()
 }
 
-func EncodingPacketHeader(writer *RawPacketData, totalSize int16, pktId int16, packetType int8) {
+func EncodingPacketHeader(writer *RawPacketData, totalSize int16, pktId int16, packetType int8) 
+{
 	writer.WriteS16(totalSize)
 	writer.WriteS16(pktId)
 	writer.WriteS8(packetType)
@@ -93,12 +108,14 @@ func EncodingPacketHeader(writer *RawPacketData, totalSize int16, pktId int16, p
 ///<<< 패킷 인코딩/디코딩
 
 // [[[ 로그인 ]]] PACKET_ID_LOGIN_REQ
-type LoginReqPacket struct {
+type LoginReqPacket struct 
+{
 	UserID []byte
 	PassWD []byte
 }
 
-func (loginReq LoginReqPacket) EncodingPacket() ([]byte, int16) {
+func (loginReq LoginReqPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + MAX_USER_ID_BYTE_LENGTH + MAX_USER_PW_BYTE_LENGTH
 	sendBuf := make([]byte, totalSize)
 
@@ -109,9 +126,11 @@ func (loginReq LoginReqPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (loginReq *LoginReqPacket) Decoding(bodyData []byte) bool {
+func (loginReq *LoginReqPacket) Decoding(bodyData []byte) bool 
+{
 	bodySize := MAX_USER_ID_BYTE_LENGTH + MAX_USER_PW_BYTE_LENGTH
-	if len(bodyData) != bodySize {
+	if len(bodyData) != bodySize 
+	{
 		return false
 	}
 
@@ -121,11 +140,13 @@ func (loginReq *LoginReqPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
-type LoginResPacket struct {
+type LoginResPacket struct 
+{
 	Result int16
 }
 
-func (loginRes LoginResPacket) EncodingPacket() ([]byte, int16) {
+func (loginRes LoginResPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2
 	sendBuf := make([]byte, totalSize)
 
@@ -140,7 +161,8 @@ type ErrorNtfPacket struct {
 	ErrorCode int16
 }
 
-func (response ErrorNtfPacket) EncodingPacket(errorCode int16) ([]byte, int16) {
+func (response ErrorNtfPacket) EncodingPacket(errorCode int16) ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2
 	sendBuf := make([]byte, totalSize)
 
@@ -150,8 +172,10 @@ func (response ErrorNtfPacket) EncodingPacket(errorCode int16) ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (response *ErrorNtfPacket) Decoding(bodyData []byte) bool {
-	if len(bodyData) != 2 {
+func (response *ErrorNtfPacket) Decoding(bodyData []byte) bool 
+{
+	if len(bodyData) != 2 
+	{
 		return false
 	}
 
@@ -161,11 +185,13 @@ func (response *ErrorNtfPacket) Decoding(bodyData []byte) bool {
 }
 
 /// [ 방 입장 ]
-type RoomEnterReqPacket struct {
+type RoomEnterReqPacket struct 
+{
 	RoomNumber int32
 }
 
-func (request RoomEnterReqPacket) EncodingPacket() ([]byte, int16) {
+func (request RoomEnterReqPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + (4)
 	sendBuf := make([]byte, totalSize)
 
@@ -175,8 +201,10 @@ func (request RoomEnterReqPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (request *RoomEnterReqPacket) Decoding(bodyData []byte) bool {
-	if len(bodyData) != (4) {
+func (request *RoomEnterReqPacket) Decoding(bodyData []byte) bool 
+{
+	if len(bodyData) != (4) 
+	{
 		return false
 	}
 
@@ -185,13 +213,15 @@ func (request *RoomEnterReqPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
-type RoomEnterResPacket struct {
+type RoomEnterResPacket struct 
+{
 	Result           int16
 	RoomNumber       int32
 	RoomUserUniqueId uint64
 }
 
-func (response RoomEnterResPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomEnterResPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2 + 4 + 8
 	sendBuf := make([]byte, totalSize)
 
@@ -203,8 +233,10 @@ func (response RoomEnterResPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (response *RoomEnterResPacket) Decoding(bodyData []byte) bool {
-	if len(bodyData) != (2 + 4 + 8) {
+func (response *RoomEnterResPacket) Decoding(bodyData []byte) bool 
+{
+	if len(bodyData) != (2 + 4 + 8) 
+	{
 		return false
 	}
 
@@ -216,18 +248,21 @@ func (response *RoomEnterResPacket) Decoding(bodyData []byte) bool {
 }
 
 ///  방에 있는 있는 유저 리스트 통보(채널에 들어오는 유저에게)
-type RoomUserInfoPktData struct {
+type RoomUserInfoPktData struct 
+{
 	UniqueId int64
 	IDLen    int8
 	ID       []byte
 }
 
-type RoomUserListNtfPacket struct {
+type RoomUserListNtfPacket struct 
+{
 	UserCount int8
 	UserList  []byte //RoomUserInfoPktData
 }
 
-func (notify RoomUserListNtfPacket) EncodingPacket(userInfoListSize int16) ([]byte, int16) {
+func (notify RoomUserListNtfPacket) EncodingPacket(userInfoListSize int16) ([]byte, int16) 
+{
 	bodySize := 1 + userInfoListSize
 	totalSize := _clientSessionHeaderSize + bodySize
 	sendBuf := make([]byte, totalSize)
@@ -239,7 +274,8 @@ func (notify RoomUserListNtfPacket) EncodingPacket(userInfoListSize int16) ([]by
 	return sendBuf, totalSize
 }
 
-func (notify RoomUserListNtfPacket) Decoding(bodyData []byte) bool {
+func (notify RoomUserListNtfPacket) Decoding(bodyData []byte) bool 
+{
 	reader := MakeReader(bodyData, true)
 	notify.UserCount, _ = reader.ReadS8()
 	notify.UserList = reader.ReadBytes(len(bodyData) - 1)
@@ -247,11 +283,13 @@ func (notify RoomUserListNtfPacket) Decoding(bodyData []byte) bool {
 }
 
 // 채널에 있는 유저들에게 새 유저의 정보를 알려준다
-type RoomNewUserNtfPacket struct {
+type RoomNewUserNtfPacket struct 
+{
 	User []byte //RoomUserInfoPktData
 }
 
-func (notify RoomNewUserNtfPacket) EncodingPacket(userInfoSize int16) ([]byte, int16) {
+func (notify RoomNewUserNtfPacket) EncodingPacket(userInfoSize int16) ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + userInfoSize
 	sendBuf := make([]byte, totalSize)
 
@@ -262,11 +300,13 @@ func (notify RoomNewUserNtfPacket) EncodingPacket(userInfoSize int16) ([]byte, i
 }
 
 //<<< 방에서 나가기
-type RoomLeaveResPacket struct {
+type RoomLeaveResPacket struct 
+{
 	Result int16
 }
 
-func (response RoomLeaveResPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomLeaveResPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2
 	sendBuf := make([]byte, totalSize)
 
@@ -275,17 +315,20 @@ func (response RoomLeaveResPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (response *RoomLeaveResPacket) Decoding(bodyData []byte) bool {
+func (response *RoomLeaveResPacket) Decoding(bodyData []byte) bool 
+{
 	reader := MakeReader(bodyData, true)
 	response.Result, _ = reader.ReadS16()
 	return true
 }
 
-type RoomLeaveUserNtfPacket struct {
+type RoomLeaveUserNtfPacket struct 
+{
 	UserUniqueId uint64
 }
 
-func (notify RoomLeaveUserNtfPacket) EncodingPacket() ([]byte, int16) {
+func (notify RoomLeaveUserNtfPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 8
 	sendBuf := make([]byte, totalSize)
 
@@ -295,8 +338,10 @@ func (notify RoomLeaveUserNtfPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (notify RoomLeaveUserNtfPacket) Decoding(bodyData []byte) bool {
-	if len(bodyData) != 8 {
+func (notify RoomLeaveUserNtfPacket) Decoding(bodyData []byte) bool 
+{
+	if len(bodyData) != 8 
+	{
 		return false
 	}
 
@@ -306,12 +351,14 @@ func (notify RoomLeaveUserNtfPacket) Decoding(bodyData []byte) bool {
 }
 
 /// [ 방 채팅 ]]
-type RoomChatReqPacket struct {
+type RoomChatReqPacket struct 
+{
 	MsgLength int16
 	Msgs      []byte
 }
 
-func (request RoomChatReqPacket) EncodingPacket() ([]byte, int16) {
+func (request RoomChatReqPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2 + int16(request.MsgLength)
 	sendBuf := make([]byte, totalSize)
 	writer := MakeWriter(sendBuf, true)
@@ -322,16 +369,19 @@ func (request RoomChatReqPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (request *RoomChatReqPacket) Decoding(bodyData []byte) bool {
+func (request *RoomChatReqPacket) Decoding(bodyData []byte) bool 
+{
 	bodyLength := len(bodyData)
-	if bodyLength < 2 {
+	if bodyLength < 2 
+	{
 		return false
 	}
 
 	reader := MakeReader(bodyData, true)
 	request.MsgLength, _ = reader.ReadS16()
 
-	if bodyLength != int((2 + request.MsgLength)) {
+	if bodyLength != int((2 + request.MsgLength)) 
+	{
 		return false
 	}
 
@@ -339,11 +389,13 @@ func (request *RoomChatReqPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
-type RoomChatResPacket struct {
+type RoomChatResPacket struct 
+{
 	Result int16
 }
 
-func (response RoomChatResPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomChatResPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2
 	sendBuf := make([]byte, totalSize)
 
@@ -352,19 +404,22 @@ func (response RoomChatResPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (response *RoomChatResPacket) Decoding(bodyData []byte) bool {
+func (response *RoomChatResPacket) Decoding(bodyData []byte) bool 
+{
 	reader := MakeReader(bodyData, true)
 	response.Result, _ = reader.ReadS16()
 	return true
 }
 
-type RoomChatNtfPacket struct {
+type RoomChatNtfPacket struct 
+{
 	RoomUserUniqueId uint64
 	MsgLen           int16
 	Msg              []byte
 }
 
-func (response RoomChatNtfPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomChatNtfPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 8 + int16(2) + response.MsgLen
 	sendBuf := make([]byte, totalSize)
 	writer := MakeWriter(sendBuf, true)
@@ -376,7 +431,8 @@ func (response RoomChatNtfPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (response *RoomChatNtfPacket) Decoding(bodyData []byte) bool {
+func (response *RoomChatNtfPacket) Decoding(bodyData []byte) bool 
+{
 	reader := MakeReader(bodyData, true)
 	response.RoomUserUniqueId, _ = reader.ReadU64()
 	response.MsgLen, _ = reader.ReadS16()
@@ -385,11 +441,13 @@ func (response *RoomChatNtfPacket) Decoding(bodyData []byte) bool {
 }
 
 ///<<< Room Relay
-type RoomRelayReqPacket struct {
+type RoomRelayReqPacket struct 
+{
 	Data []byte
 }
 
-func (request RoomRelayReqPacket) EncodingPacket(size int16) ([]byte, int16) {
+func (request RoomRelayReqPacket) EncodingPacket(size int16) ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + int16(len(request.Data))
 	sendBuf := make([]byte, totalSize)
 	writer := MakeWriter(sendBuf, true)
@@ -405,12 +463,14 @@ func (request *RoomRelayReqPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
-type RoomRelayNtfPacket struct {
+type RoomRelayNtfPacket struct 
+{
 	RoomUserUniqueId uint64
 	Data             []byte
 }
 
-func (notify RoomRelayNtfPacket) EncodingPacket(size int16) ([]byte, int16) {
+func (notify RoomRelayNtfPacket) EncodingPacket(size int16) ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 8 + int16(len(notify.Data))
 	sendBuf := make([]byte, totalSize)
 	writer := MakeWriter(sendBuf, true)
@@ -421,28 +481,33 @@ func (notify RoomRelayNtfPacket) EncodingPacket(size int16) ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (notify *RoomRelayNtfPacket) Decoding(bodyData []byte) bool {
+func (notify *RoomRelayNtfPacket) Decoding(bodyData []byte) bool 
+{
 	reader := MakeReader(bodyData, true)
 	notify.RoomUserUniqueId, _ = reader.ReadU64()
 	notify.Data = reader.ReadBytes(len(bodyData) - 8)
 	return true
 }
 
-func NotifyErrorPacket(sessionIndex int32, sessionUniqueId uint64, errorCode int16) {
+func NotifyErrorPacket(sessionIndex int32, sessionUniqueId uint64, errorCode int16) 
+{
 	var response ErrorNtfPacket
 	sendBuf, _ := response.EncodingPacket(errorCode)
 	NetLibIPostSendToClient(sessionIndex, sessionUniqueId, sendBuf)
 }
 
 /// [ 게임 시작 요청 ]]
-type RoomGameStartReqPacket struct {
+type RoomGameStartReqPacket struct 
+{
 }
 
-type RoomGameStartResPacket struct {
+type RoomGameStartResPacket struct 
+{
 	Result int16
 }
 
-func (response RoomGameStartResPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomGameStartResPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2
 	sendBuf := make([]byte, totalSize)
 
@@ -451,16 +516,19 @@ func (response RoomGameStartResPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-func (response *RoomGameStartResPacket) Decoding(bodyData []byte) bool {
+func (response *RoomGameStartResPacket) Decoding(bodyData []byte) bool 
+{
 	reader := MakeReader(bodyData, true)
 	response.Result, _ = reader.ReadS16()
 	return true
 }
 
-type RoomGameStartNtfPacket struct {
+type RoomGameStartNtfPacket struct 
+{
 }
 
-func (response RoomGameStartNtfPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomGameStartNtfPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize
 	sendBuf := make([]byte, totalSize)
 
@@ -470,11 +538,13 @@ func (response RoomGameStartNtfPacket) EncodingPacket() ([]byte, int16) {
 }
 
 /// [ 게임 배팅 ]]
-type RoomGameBattingReqPacket struct {
+type RoomGameBattingReqPacket struct 
+{
 	SelectSide int8
 }
 
-func (request *RoomGameBattingReqPacket) Decoding(bodyData []byte) bool {
+func (request *RoomGameBattingReqPacket) Decoding(bodyData []byte) bool 
+{
 	bodyLength := len(bodyData)
 	if bodyLength < 1 {
 		return false
@@ -485,11 +555,13 @@ func (request *RoomGameBattingReqPacket) Decoding(bodyData []byte) bool {
 	return true
 }
 
-type RoomGameBattingResPacket struct {
+type RoomGameBattingResPacket struct 
+{
 	Result int16
 }
 
-func (response RoomGameBattingResPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomGameBattingResPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 2
 	sendBuf := make([]byte, totalSize)
 
@@ -498,12 +570,14 @@ func (response RoomGameBattingResPacket) EncodingPacket() ([]byte, int16) {
 	return sendBuf, totalSize
 }
 
-type RoomGameBattingNtfPacket struct {
+type RoomGameBattingNtfPacket struct 
+{
 	RoomUserUniqueId uint64
 	SelectSide       int8
 }
 
-func (response RoomGameBattingNtfPacket) EncodingPacket() ([]byte, int16) {
+func (response RoomGameBattingNtfPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 8 + 1
 	sendBuf := make([]byte, totalSize)
 	writer := MakeWriter(sendBuf, true)
@@ -515,7 +589,8 @@ func (response RoomGameBattingNtfPacket) EncodingPacket() ([]byte, int16) {
 }
 
 ///[게임 결과 통보]
-type RoomGameResultNtfPacket struct {
+type RoomGameResultNtfPacket struct 
+{
 	CardsBanker [3]int8
 	CardsPlayer [3]int8
 	PlayerScore int8
@@ -523,7 +598,8 @@ type RoomGameResultNtfPacket struct {
 	Result      int8
 }
 
-func (notify RoomGameResultNtfPacket) EncodingPacket() ([]byte, int16) {
+func (notify RoomGameResultNtfPacket) EncodingPacket() ([]byte, int16) 
+{
 	totalSize := _clientSessionHeaderSize + 6 + 2 + 1
 	sendBuf := make([]byte, totalSize)
 	writer := MakeWriter(sendBuf, true)
