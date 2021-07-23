@@ -1,6 +1,7 @@
 package protocol
 
-const (
+const 
+(
 	ERROR_CODE_NONE = 1
 
 	ERROR_CODE_PACKET_DECODING_FAIL           = 51
