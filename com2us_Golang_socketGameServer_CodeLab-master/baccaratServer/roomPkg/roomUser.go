@@ -2,7 +2,8 @@ package roomPkg
 
 import "main/protocol"
 
-type roomUser struct {
+type roomUser struct 
+{
 	netSessionIndex    int32
 	netSessionUniqueId uint64
 
@@ -16,7 +17,8 @@ type roomUser struct {
 	selectBat int8
 }
 
-func (user *roomUser) init(userID []byte, uniqueId uint64) {
+func (user *roomUser) init(userID []byte, uniqueId uint64) 
+{
 	idlen := len(userID)
 
 	user.IDLen = int8(idlen)
@@ -27,15 +29,18 @@ func (user *roomUser) init(userID []byte, uniqueId uint64) {
 	user.selectBat = BATTING_SELECT_NONE
 }
 
-func (user *roomUser) SetNetworkInfo(sessionIndex int32, sessionUniqueId uint64) {
+func (user *roomUser) SetNetworkInfo(sessionIndex int32, sessionUniqueId uint64) 
+{
 	user.netSessionIndex = sessionIndex
 	user.netSessionUniqueId = sessionUniqueId
 }
 
-func (user *roomUser) PacketDataSize() int16 {
+func (user *roomUser) PacketDataSize() int16 
+{
 	return int16(1) + int16(user.IDLen) + 8
 }
 
-func (user *roomUser) selectBatting(value int8) {
+func (user *roomUser) selectBatting(value int8) 
+{
 	user.selectBat = value
 }
