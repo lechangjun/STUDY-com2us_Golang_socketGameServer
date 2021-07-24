@@ -1,6 +1,7 @@
 package roomPkg
 
-import (
+import 
+(
 	"time"
 
 	. "gohipernetFake"
@@ -9,7 +10,8 @@ import (
 	"main/protocol"
 )
 
-func (room *baseRoom) _packetProcess_EnterUser(inValidUser *roomUser, packet protocol.Packet) int16 {
+func (room *baseRoom) _packetProcess_EnterUser(inValidUser *roomUser, packet protocol.Packet) int16 
+{
 	curTime := time.Now().Unix()
 	sessionIndex := packet.UserSessionIndex
 	sessionUniqueId := packet.UserSessionUniqueId
@@ -20,29 +22,34 @@ func (room *baseRoom) _packetProcess_EnterUser(inValidUser *roomUser, packet pro
 	//TODO 방의 상태가 NONE이 아니면 들어올 수 없다.
 
 	userID, ok := connectedSessions.GetUserID(sessionIndex)
-	if ok == false {
+	if ok == false 
+	{
 		_sendRoomEnterResult(sessionIndex, sessionUniqueId, 0,0, protocol.ERROR_CODE_ENTER_ROOM_INVALID_USER_ID)
 		return protocol.ERROR_CODE_ENTER_ROOM_INVALID_USER_ID
 	}
 
-	userInfo := addRoomUserInfo{
+	userInfo := addRoomUserInfo
+	{
 		userID,
 		sessionIndex,
 		sessionUniqueId,
 	}
 	newUser, addResult := room.addUser(userInfo)
 
-	if addResult != protocol.ERROR_CODE_NONE {
+	if addResult != protocol.ERROR_CODE_NONE 
+	{
 		_sendRoomEnterResult(sessionIndex, sessionUniqueId, 0, 0, addResult)
 		return addResult
 	}
 
-	if connectedSessions.SetRoomNumber(sessionIndex, sessionUniqueId, room.getNumber(), curTime) == false {
+	if connectedSessions.SetRoomNumber(sessionIndex, sessionUniqueId, room.getNumber(), curTime) == false 
+	{
 		_sendRoomEnterResult(sessionIndex, sessionUniqueId, 0, 0, protocol.ERROR_CODE_ENTER_ROOM_INVALID_SESSION_STATE)
 		return protocol.ERROR_CODE_ENTER_ROOM_INVALID_SESSION_STATE
 	}
 
-	if room.getCurUserCount() > 1 {
+	if room.getCurUserCount() > 1 
+	{
 		//룸의 다른 유저에게 통보한다.
 		room._sendNewUserInfoPacket(newUser)
 
@@ -56,8 +63,10 @@ func (room *baseRoom) _packetProcess_EnterUser(inValidUser *roomUser, packet pro
 	return protocol.ERROR_CODE_NONE
 }
 
-func _sendRoomEnterResult(sessionIndex int32, sessionUniqueId uint64, roomNumber int32, userUniqueId uint64, result int16) {
-	response := protocol.RoomEnterResPacket{
+func _sendRoomEnterResult(sessionIndex int32, sessionUniqueId uint64, roomNumber int32, userUniqueId uint64, result int16) 
+{
+	response := protocol.RoomEnterResPacket
+	{
 		result,
 		roomNumber,
 		userUniqueId,
@@ -67,7 +76,8 @@ func _sendRoomEnterResult(sessionIndex int32, sessionUniqueId uint64, roomNumber
 }
 
 
-func (room *baseRoom) _sendUserInfoListPacket(user *roomUser) {
+func (room *baseRoom) _sendUserInfoListPacket(user *roomUser) 
+{
 	userCount, userInfoListSize, userInfoListBuffer := room.allocAllUserInfo(user.netSessionUniqueId)
 
 	var response protocol.RoomUserListNtfPacket
@@ -77,7 +87,8 @@ func (room *baseRoom) _sendUserInfoListPacket(user *roomUser) {
 	NetLibIPostSendToClient(user.netSessionIndex, user.netSessionUniqueId, sendBuf)
 }
 
-func (room *baseRoom) _sendNewUserInfoPacket(user *roomUser) {
+func (room *baseRoom) _sendNewUserInfoPacket(user *roomUser) 
+{
 	userInfoSize, userInfoListBuffer := room._allocUserInfo(user)
 
 	var response protocol.RoomNewUserNtfPacket
