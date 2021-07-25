@@ -1,6 +1,7 @@
 package main
 
-import (
+import 
+(
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -14,36 +15,44 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var (
+var 
+(
 	Logger, _ = zap.NewProduction()
 )
 
-type extendedZapConfig struct{
+type extendedZapConfig struct
+{
 	MaxSize			int	`json:"maxSize"`
 	MaxBackups 		int	`json:"maxBackups"`
 	MaxAge 			int	`json:"maxAge"`
 	zap.Config
 }
 
-func init_Log() {
+func init_Log() 
+{
 	currentDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
+	if err != nil 
+	{
 		panic(err)
 	}
 
 	configJson, err := ioutil.ReadFile(filepath.FromSlash(currentDir + "/" + "config_logger.json"))
-	if err != nil {
+	if err != nil 
+	{
 		panic(err)
 	}
 
 	var myConfig extendedZapConfig
 
-	if err := json.Unmarshal(configJson, &myConfig); err != nil {
+	if err := json.Unmarshal(configJson, &myConfig); err != nil 
+	{
 		panic(err)
 	}
 
-	for index := range myConfig.ErrorOutputPaths{
-		if myConfig.ErrorOutputPaths[index] != "stderr"{
+	for index := range myConfig.ErrorOutputPaths
+	{
+		if myConfig.ErrorOutputPaths[index] != "stderr"
+		{
 			myConfig.ErrorOutputPaths[index], _ = _createFileName(myConfig.ErrorOutputPaths[index])
 		}
 	}
@@ -52,19 +61,25 @@ func init_Log() {
 	Logger = zap.New(zapcore.NewCore(enc, _combineSinkFromConfig(myConfig), myConfig.Level))
 }
 
-func _combineSinkFromConfig(myConfig extendedZapConfig) zapcore.WriteSyncer{
+func _combineSinkFromConfig(myConfig extendedZapConfig) zapcore.WriteSyncer
+{
 	var fileName string
 	stdOutLogOn := false
-	for index:= range myConfig.OutputPaths{
-		if myConfig.OutputPaths[index] != "stdout"{ // 그 외는 텍스트 파일
+	for index:= range myConfig.OutputPaths
+	{
+		if myConfig.OutputPaths[index] != "stdout"
+		{ // 그 외는 텍스트 파일
 			fileName = myConfig.OutputPaths[index]
-		} else {
+		} 
+		else 
+		{
 			stdOutLogOn = true // 설정파일에 stdout이 있을 경우
 		}
 	}
 
 	sink := zapcore.AddSync(
-		&lumberjack.Logger{
+		&lumberjack.Logger
+		{
 			Filename: fileName,
 			MaxSize: 	myConfig.MaxSize, // MB 단위
 			MaxBackups: myConfig.MaxBackups,
@@ -72,21 +87,26 @@ func _combineSinkFromConfig(myConfig extendedZapConfig) zapcore.WriteSyncer{
 		},
 	)
 	var combineSink zapcore.WriteSyncer
-	if stdOutLogOn {
+	if stdOutLogOn 
+	{
 		combineSink = zap.CombineWriteSyncers(sink, os.Stdout)
-	} else {
+	} 
+	else 
+	{
 		combineSink = sink
 	}
 	return combineSink
 }
 
-func _createFileName(outputName string) (string, error){
+func _createFileName(outputName string) (string, error)
+{
 	currentTime := time.Now()
 	formattedTime := currentTime.Format("20060102_150405")
 	fileNameArr := strings.Split(outputName, ".")
 	fileName := fileNameArr[0]
 	fileExt := "." + fileNameArr[1]
-	if len(fileNameArr) > 2{
+	if len(fileNameArr) > 2
+	{
 		return "", errors.New("log ouput name Invalid")
 	}
 	return fileName + formattedTime + fileExt, nil
