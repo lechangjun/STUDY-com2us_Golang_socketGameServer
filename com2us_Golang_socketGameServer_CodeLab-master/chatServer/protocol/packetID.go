@@ -1,7 +1,8 @@
 package protocol
 
 
-const (
+const 
+(
 	PACKET_ID_PING_REQ = 201
 	PACKET_ID_PING_RES = 202
 
