@@ -1,5 +1,5 @@
-# com2us_Golang_socketGameServer_study
-# Study
+# com2us_Golang_socketGameServer_study(Alone)
+# Study -> review
 ### study -> session.go (07.22)
 ### Not so easy
 
