@@ -1,12 +1,14 @@
 package main
 
-import (
+import 
+(
 	"flag"
 	. "gohipernetFake"
 )
 
 
-func main() {
+func main() 
+{
 	NetLibInitLog(LOG_LEVEL_DEBUG, nil)
 
 	netConfig, appConfig := parseAppConfig()
@@ -16,11 +18,13 @@ func main() {
 	createAnsStartServer(netConfig, appConfig)
 }
 
-func parseAppConfig() (NetworkConfig, configAppServer) {
+func parseAppConfig() (NetworkConfig, configAppServer) 
+{
 	OutPutLog(LOG_LEVEL_INFO,"", 0,"[[Setting NetworkConfig]]")
 
 	//TODO flag 사용하기
-	appConfig := configAppServer {
+	appConfig := configAppServer 
+	{
 		"chatServer",
 		1000,
 		0,
