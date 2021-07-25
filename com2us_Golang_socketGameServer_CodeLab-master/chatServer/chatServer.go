@@ -1,6 +1,7 @@
 package main
 
-import (
+import 
+(
 	"strconv"
 	"strings"
 
@@ -11,7 +12,9 @@ import (
 	"main/roomPkg"
 )
 
-type configAppServer struct {
+type configAppServer struct 
+{
+	
 	GameName                   string
 
 	RoomMaxCount               int32
@@ -19,7 +22,8 @@ type configAppServer struct {
 	RoomMaxUserCount           int32
 }
 
-type ChatServer struct {
+type ChatServer struct 
+{
 	ServerIndex int
 	IP          string
 	Port        int
@@ -29,12 +33,14 @@ type ChatServer struct {
 	RoomMgr *roomPkg.RoomManager
 }
 
-func createAnsStartServer(netConfig NetworkConfig, appConfig configAppServer) {
+func createAnsStartServer(netConfig NetworkConfig, appConfig configAppServer) 
+{
 	OutPutLog(LOG_LEVEL_INFO, "", 0, "CreateServer !!!")
 
 	var server ChatServer
 
-	if server.setIPAddress(netConfig.BindAddress) == false {
+	if server.setIPAddress(netConfig.BindAddress) == false 
+	{
 		OutPutLog(LOG_LEVEL_INFO, "", 0, "fail. server address")
 		return
 	}
@@ -46,7 +52,8 @@ func createAnsStartServer(netConfig NetworkConfig, appConfig configAppServer) {
 
 	server.PacketChan = make(chan protocol.Packet, 256)
 
-	roomConfig := roomPkg.RoomConfig{
+	roomConfig := roomPkg.RoomConfig
+	{
 		appConfig.RoomStartNum,
 		appConfig.RoomMaxCount,
 		appConfig.RoomMaxUserCount,
@@ -70,9 +77,11 @@ func createAnsStartServer(netConfig NetworkConfig, appConfig configAppServer) {
 	NetLibStartNetwork(&netConfig, networkFunctor)
 }
 
-func (server *ChatServer) setIPAddress(ipAddress string) bool {
+func (server *ChatServer) setIPAddress(ipAddress string) bool 
+{
 	results := strings.Split(ipAddress, ":")
-	if len(results) != 2 {
+	if len(results) != 2 
+	{
 		return false
 	}
 
@@ -85,29 +94,35 @@ func (server *ChatServer) setIPAddress(ipAddress string) bool {
 
 
 
-func (server *ChatServer) OnConnect(sessionIndex int32, sessionUniqueID uint64) {
+func (server *ChatServer) OnConnect(sessionIndex int32, sessionUniqueID uint64) 
+{
 	connectedSessions.AddSession(sessionIndex, sessionUniqueID)
 }
 
-func (server *ChatServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, data []byte) bool {
+func (server *ChatServer) OnReceive(sessionIndex int32, sessionUniqueID uint64, data []byte) bool 
+{
 	server.DistributePacket(sessionIndex, sessionUniqueID, data)
 	return true
 }
 
-func (server *ChatServer) OnClose(sessionIndex int32, sessionUniqueID uint64) {
+func (server *ChatServer) OnClose(sessionIndex int32, sessionUniqueID uint64) 
+{
 	server.disConnectClient(sessionIndex, sessionUniqueID)
 }
 
-func (server *ChatServer) disConnectClient(sessionIndex int32, sessionUniqueId uint64) {
+func (server *ChatServer) disConnectClient(sessionIndex int32, sessionUniqueId uint64) 
+{
 	// 로그인도 안한 유저라면 그냥 여기서 처리한다.
 	// 방 입장을 안한 유저라면 여기서 처리해도 괜찮지만 아래로 넘긴다.
-	if connectedSessions.IsLoginUser(sessionIndex) == false {
+	if connectedSessions.IsLoginUser(sessionIndex) == false 
+	{
 		connectedSessions.RemoveSession(sessionIndex, false)
 		return
 	}
 
 
-	packet := protocol.Packet {
+	packet := protocol.Packet 
+	{
 		sessionIndex,
 		sessionUniqueId,
 		protocol.PACKET_ID_SESSION_CLOSE_SYS,
